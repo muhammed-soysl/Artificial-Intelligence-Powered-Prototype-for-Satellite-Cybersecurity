@@ -1,0 +1,16 @@
+# Sanal Ortam (Virtual Environment)
+.venv/
+venv/
+
+# PyCharm proje dosyaları
+.idea/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Kodun ürettiği büyük dosyalar
+# Bu dosyaların yüklenmesi GEREKMEZ,
+# adim_1 ve adim_2 scriptleri bunları zaten oluşturuyor.
+*.csv
+*.joblib
