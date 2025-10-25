@@ -14,7 +14,7 @@ This system provides a two-layer hybrid security architecture designed to protec
 
 Here is a screenshot of the Streamlit prototype in action:
 
-![AI Satellite Firewall Prototype](prototip-ekran-goruntusu.png)
+![AI Satellite Firewall Prototype](img.png)
 
 1.  **Clone the Repository:**
     ```bash
