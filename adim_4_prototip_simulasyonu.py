@@ -5,178 +5,108 @@ import hashlib
 import time
 import threading
 import warnings
+import time
 
-# Uyarıları gizle
+# Gereksiz kütüphane uyarılarını gizleyelim
 warnings.filterwarnings('ignore')
 
 # --- Global Değişken ---
 # Arka plan thread'i bu değişkeni her saniye güncelleyecek
 ANLIK_GUVENLIK_KODU = ""
-# -------------------------
 
-# --- Adım 3'teki Dinamik Kod Üreteci Fonksiyonları ---
+
 def cografi_konum_uret():
-    """Rastgele coğrafi konum bilgisi (derece, dakika, saniye, yön) üretir."""
-    enlem_derece = random.randint(0, 90)
-    enlem_dakika = random.randint(0, 59)
-    enlem_saniye = random.randint(0, 59)
-    enlem_yon = random.choice(['K', 'G'])
-    boylam_derece = random.randint(0, 180)
-    boylam_dakika = random.randint(0, 59)
-    boylam_saniye = random.randint(0, 59)
-    boylam_yon = random.choice(['D', 'B'])
-
-    # Koda dönüştürülecek string (Proje önerisindeki mantık)
-    konum_string_kod = f"{enlem_derece}{enlem_yon}{enlem_dakika}{enlem_saniye}-{boylam_derece}{boylam_yon}{boylam_dakika}{boylam_saniye}"
-
-    # Ekranda gösterilecek format
-    konum_string_goster = f"Enlem: {enlem_derece}° {enlem_dakika}' {enlem_saniye}\" {enlem_yon} | Boylam: {boylam_derece}° {boylam_dakika}' {boylam_saniye}\" {boylam_yon}"
-
+    """Rastgele coğrafi konum bilgisi üretir."""
+    enlem = f"{random.randint(0, 90)}K{random.randint(0, 59)}{random.randint(0, 59)}"
+    boylam = f"{random.randint(0, 180)}D{random.randint(0, 59)}{random.randint(0, 59)}"
+    konum_string_kod = f"{enlem}-{boylam}"
+    konum_string_goster = f"Enlem: {enlem} | Boylam: {boylam}"
     return konum_string_kod, konum_string_goster
 
+
 def kodu_sifrele(konum_string):
-    """Konum string'ini SHA-256 ile karmaşık koda dönüştürür."""
-    konum_bytes = konum_string.encode('utf-8')
-    hash_objesi = hashlib.sha256(konum_bytes)
-    karmasik_kod = hash_objesi.hexdigest()
-    return karmasik_kod
+    """Konum bilgisini SHA-256 ile hash'ler."""
+    return hashlib.sha256(konum_string.encode('utf-8')).hexdigest()
+
 
 def dinamik_kod_guncelleyici():
-    """
-    [ARKA PLAN GÖREVİ]
-    Proje önerisindeki "Sonsuz Güvenlik Duvarı"nı simüle eder.
-    Her saniye global güvenlik kodunu yeniler.
-    """
+    """Arka planda her saniye yeni güvenlik kodu üretir."""
     global ANLIK_GUVENLIK_KODU
-    print("[Arka Plan]: Sonsuz Duvar kod üreteci çalıştı.")
-
     while True:
-        anlik_konum_kod, anlik_konum_goster = cografi_konum_uret()
-        ANLIK_GUVENLIK_KODU = kodu_sifrele(anlik_konum_kod)
+        konum_kod, _ = cografi_konum_uret()
+        ANLIK_GUVENLIK_KODU = kodu_sifrele(konum_kod)
+        time.sleep(1)
 
-        print(f"\n[Arka Plan DUYURU] - Zaman: {time.strftime('%H:%M:%S')}")
-        print(f"  Yeni Konum: {anlik_konum_goster}")
-        print(f"  YENİ GÜVENLİK KODU: {ANLIK_GUVENLIK_KODU[:20]}...")
 
-        time.sleep(1) # Her saniye yenile [cite: 35]
-
-# --- Adım 2'deki AI Modelini Yükleme ---
 def modeli_yukle():
-    """Eğitilmiş .joblib modelini yükler."""
+    """Eğitilmiş yapay zeka modelini yükler."""
     try:
         model = joblib.load('siber_guvenlik_modeli.joblib')
-        print("[Sistem]: Yapay zeka modeli 'siber_guvenlik_modeli.joblib' başarıyla yüklendi.")
+        print("[Sistem]: AI Modeli başarıyla yüklendi.")
         return model
     except FileNotFoundError:
-        print("[Hata]: 'siber_guvenlik_modeli.joblib' bulunamadı!")
-        print("Lütfen önce 'adim_2_model_egitme.py' (ve Görev 3'teki kaydetme adımını) çalıştırın.")
+        print("[Hata]: 'siber_guvenlik_modeli.joblib' bulunamadı! Lütfen önce Adım 2'yi çalıştırın.")
         return None
 
-# --- İş Paketi 3: Test ve Doğrulama Simülasyonu ---
-def paketi_analiz_et(model, paket_verisi, gelen_kod):
-    """
-    [PROTOTİP ANA MANTIĞI]
-    Gelen paketi önce 'Sonsuz Duvar' ile, sonra 'AI Model' ile kontrol eder.
-    """
-    print("\n--- Paket Analizi Başladı ---")
-    global ANLIK_GUVENLIK_KODU
 
-    # 1. KONTROL: Sonsuz Güvenlik Duvarı (Dinamik Kod Kontrolü)
-    print(f"  Sistemin O Anki Kodu: {ANLIK_GUVENLIK_KODU[:20]}...")
-    print(f"  Paketten Gelen Kod:   {gelen_kod[:20]}...")
+def paketi_analiz_et(model, paket_verisi, gelen_kod):
+    # --- ÖLÇÜM BAŞLAT ---
+    start_time = time.perf_counter()
+
+    global ANLIK_GUVENLIK_KODU
+    print("\n--- Analiz Başladı ---")
 
     if gelen_kod != ANLIK_GUVENLIK_KODU:
-        print("\n  SONUÇ: ERKEN TESPİT! ")
-        print("  Paket 'Sonsuz Güvenlik Duvarı'nı geçemedi. Kod eşleşmiyor.")
-        print("  DURUM: TEHDİT ENGELLENDİ (AI Taramasına Gerek Kalmadı).")
-        print("--- Analiz Bitti ---")
+        print("RESULT: 🛑 DUVAR ENGELİ!")
         return
 
-    # 2. KONTROL: Yapay Zeka Tabanlı Derin Tarama
-    print("\n  Güvenlik Kodu DOĞRU. Paket 'Yapay Zeka Tabanlı' derin taramaya yönlendiriliyor... [cite: 19]")
+    df = pd.DataFrame([paket_verisi])
+    tahmin = model.predict(df)
 
-    # Gelen paket verisini (dict) AI modelinin anlayacağı DataFrame'e çevir
-    try:
-        df = pd.DataFrame([paket_verisi])
+    # --- ÖLÇÜM BİTİR ---
+    end_time = time.perf_counter()
+    gecikme_ms = (end_time - start_time) * 1000
 
-        # Modeli kullanarak tahmin yap
-        tahmin = model.predict(df)
-        tahmin_olasilik = model.predict_proba(df)
-
-        if tahmin[0] == 1: # 1 = Sızıntı
-            print("\n  SONUÇ: YAPAY ZEKA TESPİTİ!")
-            print(f"  Model bu paketi %{tahmin_olasilik[0][1]*100:.2f} ihtimalle 'Sızıntı' olarak sınıflandırdı.")
-            print("  DURUM: TEHDİT ENGELLENDİ.")
-        else: # 0 = Normal
-            print("\n  SONUÇ: GÜVENLİ.")
-            print(f"  Model bu paketi %{tahmin_olasilik[0][0]*100:.2f} ihtimalle 'Normal' olarak sınıflandırdı.")
-            print("  DURUM: İZİN VERİLDİ.")
-
-    except Exception as e:
-        print(f"[Hata] AI Modeli analiz sırasında hata verdi: {e}")
-
-    print("--- Analiz Bitti ---")
+    if tahmin[0] == 1:
+        print(f"RESULT: ⚠️ AI TESPİTİ! (Süre: {gecikme_ms:.2f} ms)")
+    else:
+        print(f"RESULT: ✅ GÜVENLİ. (Süre: {gecikme_ms:.2f} ms)")
 
 
-# --- ANA PROGRAM: Simülasyon Arayüzü ---
 if __name__ == "__main__":
-    # 1. AI Modelini yükle
     ai_model = modeli_yukle()
-    if ai_model is None:
-        exit()
+    if ai_model is None: exit()
 
-    # 2. Arka planda "Sonsuz Duvar"ı (Dinamik Kod Üreteci) başlat
-    # 'daemon=True' ana program kapanınca arka plan görevinin de kapanmasını sağlar
-    kod_guncelleme_thread = threading.Thread(target=dinamik_kod_guncelleyici, daemon=True)
-    kod_guncelleme_thread.start()
-
-    print("\n[Sistem]: Arka planda 'Sonsuz Güvenlik Duvarı' kod üreteci başlatılıyor...")
-    # Kod üretecinin ilk kodu üretmesi için kısa bir süre bekle
+    # Arka plan görevini başlat
+    threading.Thread(target=dinamik_kod_guncelleyici, daemon=True).start()
+    print("[Sistem]: Sonsuz Güvenlik Duvarı aktif. İlk kodun üretilmesi bekleniyor...")
     time.sleep(1.5)
 
-    print("\n" + "="*50)
-    print(" UYDU SİBER GÜVENLİK PROTOTİP SİMÜLASYONU BAŞLADI ")
-    print(" Arka planda her saniye güvenlik kodu değişiyor... ")
-    print("="*50)
-
-    # 3. Ana Simülasyon Menüsü (İş Paketi 3: Test Senaryoları)
     while True:
-        print("\n--- Yeni Bir Paket Simülasyonu Oluştur ---")
-        print(" (Arka plandaki kod değişimlerini izleyin)")
-
+        print(f"\n[Sistem Zamanı: {time.strftime('%H:%M:%S')}]")
         secim = input(
             "Test Senaryosu Seçin:\n"
-            "  1: [GÜVENLİ]   Doğru Kodlu NORMAL Paket\n"
-            "  2: [TEHLİKELİ] Doğru Kodlu SIZINTI Paketi (AI Yakalamalı)\n"
-            "  3: [SALDIRGAN] YANLIŞ Kodlu Paket (Duvar Yakalamalı)\n"
+            "  1: [GÜVENLİ]   Doğru Kod + Normal Paket\n"
+            "  2: [SIZINTI]   Doğru Kod + Şüpheli Paket (AI Yakalamalı)\n"
+            "  3: [SALDIRGAN] Yanlış Kodlu Paket (Duvar Yakalamalı)\n"
             "  q: Çıkış\n"
             "Seçiminiz: "
         )
 
         if secim == '1':
-            # Bu veri, 'adim_1'deki 'Normal (0)' verilere benziyor
-            paket = {'protokol': 'TCP', 'kaynak_port': 1025, 'hedef_port': 443, 'paket_boyutu': 128, 'anomali_skoru': 0.1}
-            gelen_kod = ANLIK_GUVENLIK_KODU # Doğru kodu kullan
-            paketi_analiz_et(ai_model, paket, gelen_kod)
-
+            # Yeni veri setine uygun: Düşük anomali skoru, normal port
+            paket = {'protokol': 'TCP', 'kaynak_port': 1025, 'hedef_port': 443, 'paket_boyutu': 950,
+                     'anomali_skoru': 0.28}
+            paketi_analiz_et(ai_model, paket, ANLIK_GUVENLIK_KODU)
         elif secim == '2':
-            # Bu veri, 'adim_1'deki 'Sızıntı (1)' verilere benziyor
-            paket = {'protokol': 'ICMP', 'kaynak_port': 45000, 'hedef_port': 666, 'paket_boyutu': 4000, 'anomali_skoru': 0.9}
-            gelen_kod = ANLIK_GUVENLIK_KODU # Doğru kodu kullan (örn: şifreyi çalan içeriden biri)
-            paketi_analiz_et(ai_model, paket, gelen_kod)
-
+            # Yeni veri setine uygun: Sınırda anomali skoru, büyük paket
+            paket = {'protokol': 'TCP', 'kaynak_port': 45000, 'hedef_port': 8080, 'paket_boyutu': 3800,
+                     'anomali_skoru': 0.62}
+            paketi_analiz_et(ai_model, paket, ANLIK_GUVENLIK_KODU)
         elif secim == '3':
-            # Bu veri önemli değil, çünkü koda takılacak
-            paket = {'protokol': 'UDP', 'kaynak_port': 12345, 'hedef_port': 1337, 'paket_boyutu': 100, 'anomali_skoru': 0.7}
-            gelen_kod = "SALDIRGANIN_TAHMINI_veya_ESKI_KOD_abc123" # Yanlış kod
-            paketi_analiz_et(ai_model, paket, gelen_kod)
-
+            paket = {'protokol': 'UDP', 'kaynak_port': 1234, 'hedef_port': 53, 'paket_boyutu': 100,
+                     'anomali_skoru': 0.50}
+            paketi_analiz_et(ai_model, paket, "HATALI_GECERSIZ_HASH_123")
         elif secim.lower() == 'q':
             break
-
-        else:
-            print("Geçersiz seçim. Lütfen 1, 2, 3 veya 'q' girin.")
-
-        time.sleep(1) # Menünün tekrar gelmesi için kısa bir bekleme
-
-    print("\n[Sistem]: Prototip simülasyonu sonlandırıldı.")
+        time.sleep(1)

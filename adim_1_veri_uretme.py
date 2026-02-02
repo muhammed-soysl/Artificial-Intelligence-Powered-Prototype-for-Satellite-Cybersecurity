@@ -2,40 +2,62 @@ import pandas as pd
 import numpy as np
 import random
 
-# İş Paketi 1 Hedefi: En az 3000 veri [cite: 68]
+# --- KONFİGÜRASYON ---
+# İş Paketi 1: Veri seti büyüklüğü ve sızıntı oranı
 VERI_SAYISI = 3000
-SIZINTI_ORANI = 0.15 # Veri setimizin %15'i sızıntı olsun
+SIZINTI_ORANI = 0.20  # Veri setinin %20'si sızıntı/tehdit senaryosu
 
 data = []
 
-# Popüler portlar (normal trafik için)
+# Port Gruplarız
 normal_ports = [80, 443, 22, 53]
-# Şüpheli portlar (sızıntı için)
 supheli_ports = [1337, 8080, 666, 9001]
 
+print(f"--- Veri Üretim Süreci Başladı ({VERI_SAYISI} kayıt) ---")
+
 for _ in range(VERI_SAYISI):
+    # Rastgele seçimle paketin tipine karar ver
     is_sizinti = np.random.rand() < SIZINTI_ORANI
 
     if not is_sizinti:
-        # --- Normal Trafik Verisi Üret ---
+        # --- NORMAL TRAFİK SENARYOSU ---
         protokol = random.choice(['TCP', 'UDP'])
-        kaynak_port = random.randint(1024, 65535)
-        hedef_port = random.choice(normal_ports)
-        # Normal paketler genellikle belirli bir boyut aralığındadır
-        paket_boyutu = random.randint(64, 1500)
-        # Normal trafiğin anomali skoru düşük olur
-        anomali_skoru = max(0, np.random.normal(0.1, 0.05))
+
+        # Hedef Port: %90 normal portlar, %10 rastgele (gürültü için)
+        if np.random.rand() < 0.9:
+            hedef_port = random.choice(normal_ports)
+        else:
+            hedef_port = random.randint(1, 65535)
+
+        # Paket Boyutu: Standart veri akış aralığı
+        paket_boyutu = random.randint(100, 2500)
+
+        # Anomali Skoru: Ortalama 0.25, Standart Sapma 0.15
+        # (Sızıntı trafiği ile çakışma yaratarak modelin zorlanmasını sağlar)
+        anomali_skoru = np.clip(np.random.normal(0.25, 0.15), 0, 1)
         etiket = 0
+
     else:
-        # --- Sızıntı Trafik Verisi Üret ---
-        protokol = random.choice(['TCP', 'ICMP'])
-        kaynak_port = random.randint(40000, 65535)
-        hedef_port = random.choice(supheli_ports)
-        # Sızıntı (data exfiltration) genellikle büyük veya çok küçük (kontrol) paketler kullanır
-        paket_boyutu = random.choice([random.randint(20, 40), random.randint(4000, 8000)])
-        # Sızıntı trafiğinin anomali skoru yüksek olur
-        anomali_skoru = min(1, np.random.normal(0.8, 0.1))
+        # --- SIZINTI (ATTACK) TRAFİK SENARYOSU ---
+        protokol = random.choice(['TCP', 'ICMP', 'UDP'])
+
+        # Hedef Port: %40 normal portlarda saklanmaya çalış (Stealth Attack)
+        # %60 bilinen şüpheli portları kullan
+        if np.random.rand() < 0.4:
+            hedef_port = random.choice(normal_ports)
+        else:
+            hedef_port = random.choice(supheli_ports)
+
+        # Paket Boyutu: Çok küçük (kontrol) veya çok büyük (veri sızdırma) paketler
+        paket_boyutu = random.randint(40, 4500)
+
+        # Anomali Skoru: Ortalama 0.55, Standart Sapma 0.20
+        # (0.4 - 0.6 arası değerler normal trafikle karışacaktır)
+        anomali_skoru = np.clip(np.random.normal(0.55, 0.20), 0, 1)
         etiket = 1
+
+    # Ortak Özellik: Kaynak Port
+    kaynak_port = random.randint(1024, 65535)
 
     data.append({
         'protokol': protokol,
@@ -46,10 +68,19 @@ for _ in range(VERI_SAYISI):
         'etiket': etiket
     })
 
-# DataFrame oluştur ve CSV olarak kaydet
+# --- VERİ KAYIT VE ÖZET ---
+# DataFrame oluştur
 df = pd.DataFrame(data)
+
+# CSV olarak kaydet
 df.to_csv('uydu_veri_seti.csv', index=False)
 
-print(f"{VERI_SAYISI} adet yapay veri seti 'uydu_veri_seti.csv' dosyasına kaydedildi.")
-print("Veri setindeki etiket dağılımı:")
-print(df['etiket'].value_counts())
+print("\n[TAMAMLANDI]: 'uydu_veri_seti.csv' başarıyla oluşturuldu.")
+print("-" * 30)
+print("Veri Seti Özeti:")
+print(f"Toplam Kayıt: {len(df)}")
+print(f"Normal Paket (0): {df['etiket'].value_counts()[0]}")
+print(f"Sızıntı Paketi (1): {df['etiket'].value_counts()[1]}")
+print("-" * 30)
+print("Önemli: Veri seti artık daha karmaşık (çakışan değerler var).")
+print("Şimdi 'adim_2_model_egitme.py' dosyasını çalıştırarak modeli güncelleyebilirsiniz.")
