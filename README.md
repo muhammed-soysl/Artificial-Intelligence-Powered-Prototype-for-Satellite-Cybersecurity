@@ -1,47 +1,57 @@
-🛰️ AI-Based Satellite Security Firewall Prototype
+# 🛰️ AI-Based Satellite Security Firewall Prototype
 
-This repository contains the official prototype for the project titled "An AI-Based Dynamic Protection Approach Against Cyber Leaks for Data Security in Satellites," developed for the TÜBİTAK 2209-A Research Projects Support Program.
+Official prototype for the TÜBİTAK 2209-A Research Projects Support Program. Project Title: "An AI-Based Dynamic Protection Approach Against Cyber Leaks for Data Security in Satellites"
 
 🎯 Project Aim
-
 This system provides a two-layer hybrid security architecture designed to mitigate sophisticated cyber threats in satellite data communications.
 
-The Infinite Firewall (Dynamic Layer): A dynamic authentication mechanism based on synchronized geographical coordinates. It generates a unique SHA-256 security hash every second, making brute-force and replay attacks statistically impossible.
+1. The Infinite Firewall (Dynamic Layer)
+A dynamic authentication mechanism based on synchronized geographical coordinates. It generates a unique SHA-256 security hash every second, making brute-force and replay attacks statistically impossible.
 
-The AI Core (Analysis Layer): An "Honest" Machine Learning model that analyzes packets passing the first layer. Unlike basic models, this layer is trained solely on raw network features (Protocol, Ports, Packet Size) with Data Leakage Prevention (target-related features removed), achieving a robust ~97.00% accuracy.
+2. The AI Core (Analysis Layer)
+An "Honest" Machine Learning model that analyzes packets passing the first layer.
 
-📊 Key Performance Metrics
+Features: Trained solely on raw network features (Protocol, Ports, Packet Size).
 
-Based on the latest real-time simulation tests:
+Method: Data Leakage Prevention (target-related features removed).
 
-Model Accuracy: 96.50% - 97.00% (Validated on 3,000 unique satellite traffic logs).
+Performance: Achieving a robust ~97.00% accuracy.
+ 
 
-Inference Latency: ~3.89 ms (Average end-to-end processing time).
+<img width="772" height="280" alt="image" src="https://github.com/user-attachments/assets/ada247cd-d51e-4c57-8485-cbca8b9901e9" />
 
-Performance Overhead: < 4% (Minimal impact on standard satellite communication latency).
+ 
 
 🚀 How to Run the Prototype
-1. Clone & Install
+1️⃣ Clone & Install
 Bash
+## Clone the repository
 git clone https://github.com/muhammed-soysl/Artificial-Intelligence-Powered-Prototype-for-Satellite-Cybersecurity.git
+
+## Enter the directory
 cd Artificial-Intelligence-Powered-Prototype-for-Satellite-Cybersecurity
+
+## Install dependencies
 pip install -r requirements.txt
-2. (Optional) Re-generate the Dataset & Model
+
+2️⃣ (Optional) Re-generate the Dataset & Model
 If you wish to re-train the model from scratch using our "Honest Model" approach:
 
 Bash
-# 1. Generate 3,000 synthetic logs
+## 1. Generate 3,000 synthetic logs
 python adim_1_veri_uretme.py
 
-# 2. Train the Random Forest model (Removes bias/leakage)
+## 2. Train and save the AI model
 python adim_2_model_egitme.py
-3. Run the Visual Simulation
+
+3️⃣ Run the Visual Simulation
 Bash
 streamlit run adim_5_gorsel_arayuz.py
-📸 Prototype Interface
-<img width="1919" height="1026" alt="arayuz" src="https://github.com/user-attachments/assets/6195b305-7d65-4dee-b216-f280140deedc" />
 
-The prototype features a Streamlit-based dashboard where you can test three main scenarios:
+📸 Prototype Interface
+<p align="center"> <img width="90%" alt="arayuz" src="https://github.com/user-attachments/assets/6195b305-7d65-4dee-b216-f280140deedc" /> </p>
+
+The prototype features a Streamlit-based dashboard to test three main scenarios:
 
 Scenario 1 [Safe]: Valid Hash + Normal Traffic.
 
@@ -50,4 +60,4 @@ Scenario 2 [Leak]: Valid Hash + Anomaly Content (Detected by AI).
 Scenario 3 [Attacker]: Invalid Hash (Blocked by Dynamic Layer).
 
 💡 Note on Academic Integrity
-The model was intentionally optimized by removing "Anomaly Scores" from the input features to ensure the AI learns the actual network patterns rather than cheating from pre-defined labels. This results in a more reliable and deployable security solution for real-world orbital assets.
+[!IMPORTANT] The model was intentionally optimized by removing "Anomaly Scores" from the input features. Bu sayede yapay zeka hazır etiketlerden kopya çekmek yerine gerçek ağ örüntülerini öğrenmeye zorlanmıştır. This results in a more reliable and deployable security solution for real-world orbital assets.
