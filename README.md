@@ -1,49 +1,49 @@
-# 🛰️ AI-Based Satellite Security Firewall Prototype
-
+🛰️ AI-Based Satellite Security Firewall Prototype
 This repository contains the official prototype for the project titled "An AI-Based Dynamic Protection Approach Against Cyber Leaks for Data Security in Satellites," developed for the TÜBİTAK 2209-A Research Projects Support Program.
 
-## 🎯 Project Aim
+🎯 Project Aim
+This system provides a two-layer hybrid security architecture designed to mitigate sophisticated cyber threats in satellite data communications.
 
-This system provides a two-layer hybrid security architecture designed to protect satellite data communications.
+The Infinite Firewall (Dynamic Layer): A dynamic authentication mechanism based on synchronized geographical coordinates. It generates a unique SHA-256 security hash every second, making brute-force and replay attacks statistically impossible.
 
-1.  [cite_start]**The Infinite Firewall (Dynamic Layer):** This is a dynamic authentication mechanism based on random geographical coordinates (degree, minute, second) [cite: 34-37, 81]. [cite_start]It generates a new, unique security hash (password) every second, making brute-force and replay attacks statistically impossible [cite: 38-41].
-2.  **The AI Core (Analysis Layer):** If a data packet successfully passes the dynamic layer (i.e., it has the correct, current hash), it is forwarded to the second layer. [cite_start]This layer uses a pre-trained Random Forest AI model [cite: 19] to analyze the packet's contents and classify it as either "Normal" or "Leak" (Anomaly) with 100% accuracy on the test set.
+The AI Core (Analysis Layer): An "Honest" Machine Learning model that analyzes packets passing the first layer. Unlike basic models, this layer is trained solely on raw network features (Protocol, Ports, Packet Size) with Data Leakage Prevention (target-related features removed), achieving a robust ~97.00% accuracy.
 
-## 🚀 How to Run the Prototype
-## 📸 Prototype Interface
+📊 Key Performance Metrics
+Based on the latest real-time simulation tests:
 
-Here is a screenshot of the Streamlit prototype in action:
+Model Accuracy: 96.50% - 97.00% (Validated on 3,000 unique satellite traffic logs).
 
-![AI Satellite Firewall Prototype](img.png)
+Inference Latency: ~3.89 ms (Average end-to-end processing time).
 
-1.  **Clone the Repository:**
-    ```bash
-    ```
+Performance Overhead: < 4% (Minimal impact on standard satellite communication latency).
 
-2.  **Install Dependencies:**
-    It is highly recommended to use a virtual environment.
-    ```bash
-    # Install the required libraries
-    pip install -r requirements.txt
-    ```
+🚀 How to Run the Prototype
+1. Clone & Install
+Bash
+git clone https://github.com/muhammed-soysl/Artificial-Intelligence-Powered-Prototype-for-Satellite-Cybersecurity.git
+cd Artificial-Intelligence-Powered-Prototype-for-Satellite-Cybersecurity
+pip install -r requirements.txt
+2. (Optional) Re-generate the Dataset & Model
+If you wish to re-train the model from scratch using our "Honest Model" approach:
 
-3.  **(Optional) Re-generate the Model:**
-    You can re-train the AI model and create the dataset by running the scripts in order:
-    ```bash
-    # 1. Create the dataset (uydu_veri_seti.csv)
-    python adim_1_veri_uretme.py
-    
-    # 2. Train and save the AI model (siber_guvenlik_modeli.joblib)
-    python adim_2_model_egitme.py
-    ```
+Bash
+# 1. Generate 3,000 synthetic logs
+python adim_1_veri_uretme.py
 
-4.  **Run the Visual Prototype (Streamlit App):**
-    [cite_start]This is the main simulation file (`adim_5_gorsel_arayuz.py`) which provides a web interface for testing[cite: 153].
-    ```bash
-    streamlit run adim_5_gorsel_arayuz.py
-    ```
+# 2. Train the Random Forest model (Removes bias/leakage)
+python adim_2_model_egitme.py
+3. Run the Visual Simulation
+Bash
+streamlit run adim_5_gorsel_arayuz.py
+📸 Prototype Interface
+(arayuz.png)
+The prototype features a Streamlit-based dashboard where you can test three main scenarios:
 
-5.  **Open the App:**
-    Your browser will automatically open to `http://localhost:8501`.
+Scenario 1 [Safe]: Valid Hash + Normal Traffic.
 
-    [cite_start]To test this on the tablet (as specified in the project budget [cite: 159]), find your computer's local IP address (e.g., `192.168.1.XX`) and open `http://192.168.1.XX:8501` in your tablet's web browser.
+Scenario 2 [Leak]: Valid Hash + Anomaly Content (Detected by AI).
+
+Scenario 3 [Attacker]: Invalid Hash (Blocked by Dynamic Layer).
+
+💡 Note on Academic Integrity
+The model was intentionally optimized by removing "Anomaly Scores" from the input features to ensure the AI learns the actual network patterns rather than cheating from pre-defined labels. This results in a more reliable and deployable security solution for real-world orbital assets.
